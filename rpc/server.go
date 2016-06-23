@@ -59,6 +59,13 @@ func NewServer() *Server {
 		run:           1,
 	}
 
+	glog.V(logger.Info).Infoln("Starting RPC Server")
+	runtimes := loadPluginRuntime()	
+
+	if len(runtimes.Items) == 0 {
+        glog.V(logger.Info).Infoln("No Plugins Found")
+    }	
+
 	// register a default service which will provide meta information about the RPC service such as the services and
 	// methods it offers.
 	rpcService := &RPCService{server}
@@ -86,6 +93,8 @@ func (s *RPCService) Modules() map[string]string {
 // match the criteria to be either a RPC method or a subscription an error is returned. Otherwise a new service is
 // created and added to the service collection this server instance serves.
 func (s *Server) RegisterName(name string, rcvr interface{}) error {
+	//Load Plugins
+	
 	if s.services == nil {
 		s.services = make(serviceRegistry)
 	}
@@ -118,7 +127,10 @@ func (s *Server) RegisterName(name string, rcvr interface{}) error {
 		return nil
 	}
 
+	load(svc.typ.String())
+
 	svc.name = name
+	
 	svc.callbacks, svc.subscriptions = suitableCallbacks(rcvrVal, svc.typ)
 
 	if len(svc.callbacks) == 0 && len(svc.subscriptions) == 0 {
