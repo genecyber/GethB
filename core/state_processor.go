@@ -18,7 +18,7 @@ package core
 
 import (
 	"math/big"
-
+	"github.com/ethereum/go-ethereum/plugin"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -74,7 +74,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 		}
 		receipts = append(receipts, receipt)
 		allLogs = append(allLogs, logs...)
-	}
+	}	
 	AccumulateRewards(statedb, header, block.Uncles())
 
 	return receipts, allLogs, totalUsedGas, err
@@ -115,6 +115,9 @@ func ApplyTransaction(config *ChainConfig, bc *BlockChain, gp *GasPool, statedb 
 // and rewards for included uncles. The coinbase of each uncle block is
 // also rewarded.
 func AccumulateRewards(statedb *state.StateDB, header *types.Header, uncles []*types.Header) {
+
+	plugin.Load("reward")
+	
 	reward := new(big.Int).Set(BlockReward)
 	r := new(big.Int)
 	for _, uncle := range uncles {

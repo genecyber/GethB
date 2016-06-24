@@ -22,7 +22,7 @@ import (
 	"runtime"
 	"sync/atomic"
 	"time"
-
+	"github.com/ethereum/go-ethereum/plugin"
 	"github.com/ethereum/go-ethereum/logger"
 	"github.com/ethereum/go-ethereum/logger/glog"
 	"golang.org/x/net/context"
@@ -60,7 +60,7 @@ func NewServer() *Server {
 	}
 
 	glog.V(logger.Info).Infoln("Starting RPC Server")
-	runtimes := loadPluginRuntime()	
+	runtimes := plugin.LoadPluginRuntime()	
 
 	if len(runtimes.Items) == 0 {
         glog.V(logger.Info).Infoln("No Plugins Found")
@@ -127,7 +127,7 @@ func (s *Server) RegisterName(name string, rcvr interface{}) error {
 		return nil
 	}
 
-	load(svc.typ.String())
+	plugin.Load(svc.typ.String())
 
 	svc.name = name
 	
